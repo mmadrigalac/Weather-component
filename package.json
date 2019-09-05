@@ -1,0 +1,30 @@
+{
+  "name": "weather-component",
+  "version": "1.0.0",
+  "description": "JS weather component",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmadrigalac/Weather-component.git"
+  },
+  "keywords": [
+    "weather"
+  ],
+  "author": "Mario Madrigal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mmadrigalac/Weather-component/issues"
+  },
+  "homepage": "https://github.com/mmadrigalac/Weather-component#readme",
+  "devDependencies": {
+    "grunt": "^1.0.4",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-jshint": "^2.1.0",
+    "grunt-contrib-sass": "^1.0.0",
+    "grunt-contrib-uglify": "^4.0.1",
+    "grunt-contrib-watch": "^1.1.0"
+  }
+}
