@@ -5,42 +5,39 @@ module.exports = function(grunt) {
 		pkg:grunt.file.readJSON('package.json'),
 
 		jshint:{
+			options:{
+				esversion: 6
+			},
 			files:['Gruntfile.js', 'src/**/*.js']
 		},
 
-		concat:{
-			options:{
-				separator: ';'
-			},
-			dist:{
-				src:['src/**/*.js'],
-				dest: 'built/main.js'
-			}
-		},
-
-		uglify:{
-			options:{
-				// banner inserted at the top of min file
-				banner:'/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
-			},
-			dist:{
-				files:{
-					// target : source
-					'built/<%= pkg.name %>.min.js' : ['<%= concat.dist.dest %>']
-				}
-			}
-		},
-
-		browserify: {
-      dist: {
-        options: {
-          transform: ['babelify']
+    	babel: {
+            options: {
+                sourceMap: true,
+                presets: ['@babel/preset-env']
+            },
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: "src/js",
+                    src: ["**/*.js"],
+                    dest: "build/js-compiled",
+                    ext: ".-compiled.js"
+                }]
+            }
         },
-        files: {
-          'built/<%= pkg.name %>.js': '<%= concat.dist.dest %>'
-        }
-      }
-    },
+
+        uglify: {
+	        all_src : {
+	            options : {
+	              sourceMap : true,
+	              sourceMapName : 'build/sourceMap.map'
+	            },
+	            src : 'build/js-compiled/**/*-compiled.js',
+	            dest : 'build/main.min.js'
+	        }
+	    },
+       
 
 		sass: {                              
 			dist: {                            
@@ -48,7 +45,7 @@ module.exports = function(grunt) {
 					expand: true,
 	        cwd: 'styles',
 	        src: ['src/styles/main.scss'],
-	        dest: '../built',
+	        dest: '/build',
 	        ext: '.css'					
 				}]
 			}
@@ -57,7 +54,7 @@ module.exports = function(grunt) {
 		watch: {
 			scripts :{
 					files: ['<%= jshint.files %>'],
-					tasks: ['jshint','concat','browserify']
+					tasks: ['jshint','concat','babel']
 			}
 		},
 
@@ -69,19 +66,19 @@ module.exports = function(grunt) {
 
 	});
 
-	grunt.loadNpmTasks('grunt-contrib-uglify');
+	
 	grunt.loadNpmTasks('grunt-contrib-jshint'); 
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-open');
 	grunt.loadNpmTasks('grunt-serve');
+	grunt.loadNpmTasks('grunt-babel');
 
 	grunt.registerTask('test', ['jshint']);
-	grunt.registerTask('default', ['jshint','concat','browserify','sass']);
+	grunt.registerTask('default', ['jshint','babel','uglify','sass']);
 	grunt.registerTask('watch', ['watch:scripts']);
 	grunt.registerTask('dev', ['open:build','serve']);
-	grunt.registerTask('sass',['sass']);
+	grunt.registerTask('css',['sass']);
 
 };
