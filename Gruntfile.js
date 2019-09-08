@@ -1,5 +1,7 @@
 module.exports = function(grunt) {
 
+	const sass = require('node-sass');
+
 	// grunt configuration init
 	grunt.initConfig({
 		pkg:grunt.file.readJSON('package.json'),
@@ -8,7 +10,7 @@ module.exports = function(grunt) {
 			options:{
 				esversion: 6
 			},
-			files:['Gruntfile.js', 'src/js/**/*.js']
+			files:['Gruntfile.js', 'src/**/*.js','!src/*.min.js','!src/main.js']
 		},
 
     	browserify: {
@@ -17,39 +19,47 @@ module.exports = function(grunt) {
 	          transform: [["babelify", { "presets": ["@babel/preset-env"] }]]
 	        },
 	        files: {
-	          'src/main.js': 'src/js/**/*.js'
+	          'src/main.js': ['src/**/*.js','!src/main.js','!src/*.min.js']
 	         }
 	      }
 	    },
 
         uglify: {
-	        all_src : {
-	            options : {
-	              sourceMap : true,
-	              sourceMapName : 'src/main.map'
-	            },
+			options : {
+				sourceMap : true,
+				sourceMapName : 'src/main.map'
+			},
+	        dev : {
 	            src : 'src/main.js',
 	            dest : 'src/main.min.js'
-	        }
+			},
+			dist :{
+				src : 'src/main.js',
+	            dest : 'build/main.min.js'
+			}
 	    },
        
 
-		sass: {                              
-			dist: {                            
-				files: [{                         
-					expand: true,
-	        cwd: 'styles',
-	        src: ['src/styles/main.scss'],
-	        dest: '/src',
-	        ext: '.css'					
-				}]
+		sass: {        
+			options: {                        
+            	sourceMap: true
+			},
+			dev: {    
+				files: {
+					'src/weatherComponent.css': 'src/styles/main.scss'
+				}
+			},                      
+			dist: {    
+				files: {
+					'build/weatherComponent.css': 'src/styles/main.scss'
+				}
 			}
 		},
 
 		watch: {
 			scripts :{
 					files: ['<%= jshint.files %>'],
-					tasks: ['jshint','browserify']
+					tasks: ['jshint','browserify','uglify']
 			}
 		},
 
@@ -70,8 +80,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-serve');
 
 	grunt.registerTask('test', ['jshint']);
-	grunt.registerTask('default', ['jshint','browserify','uglify','sass']);
-	grunt.registerTask('watch', ['watch:scripts']);
+	grunt.registerTask('default', ['jshint','browserify','uglify:dev','sass:dev']);
+	grunt.registerTask('check', ['watch:scripts']);
 	grunt.registerTask('dev', ['open:build','serve']);
 	grunt.registerTask('css',['sass']);
 

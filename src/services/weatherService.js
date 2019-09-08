@@ -1,5 +1,4 @@
 import * as weatherRepo from './weatherRepo.js';
-
 /**
 * Verifies if the loacation is a valid coordinate.
 */
@@ -20,7 +19,8 @@ export function getLocationOptions( location ){
 	var locationType = validateCoordinate(location)? `lattlong=${location}`: `query=${location}`;
 	let completeUrl = `location/search/?${locationType}`;
 
-	return weatherRepo.getApiResponse( completeUrl);
+	//Once completed the 
+	return weatherRepo.getApiResponse(completeUrl);
 }
 
 
@@ -31,5 +31,5 @@ export function getWeatherData( woeid ){
 
 	let completeUrl = `location/${woeid}`;
 
-	return weatherRepo.getApiResponse(completeUrl, data => JSON.parse(data));
+	return weatherRepo.getApiResponse(completeUrl);
 }

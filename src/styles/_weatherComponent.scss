@@ -1,0 +1,33 @@
+.weather-container{
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 10%;
+
+	.option-selectors {
+		height: 10%;
+		display: flex;
+		flex-flow: row nowrap;
+		justify-content: flex-end;
+		margin: 10px;
+
+		a {
+			text-decoration: none;
+			margin-left:5px; 
+		}
+	}
+
+	.weather-data {
+		display: flex;
+		flex-flow: row wrap;
+
+		.location-name {
+			font-weight: bold;  
+		}
+
+		.temp {
+			font-size: 200%
+		}
+	}
+
+}

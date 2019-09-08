@@ -1,0 +1,28 @@
+.weather-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 10%;
+}
+.weather-container .option-selectors {
+  height: 10%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+  margin: 10px;
+}
+.weather-container .option-selectors a {
+  text-decoration: none;
+}
+.weather-container .weather-data {
+  display: flex;
+  flex-flow: row wrap;
+}
+.weather-container .weather-data .location-name {
+  font-weight: bold;
+}
+.weather-container .weather-data .temp {
+  font-size: 200%;
+}
+
+/*# sourceMappingURL=weatherComponent.css.map */

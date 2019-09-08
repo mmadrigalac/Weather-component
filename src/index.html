@@ -1,11 +1,30 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>Test</title>
+    <head lang="en">
+        <meta charset="UTF-8">    
+        <title>Weather Potcast</title>
+    </head>
+    <body>
+        <weather-component></weather-component>        
+    </body>
+
+    <template id="weather-component-template">
+        <div class="weather-container">
+            <div class="option-selectors">
+                <a href="" id="select-location">location</a>
+                <a href="" id="add-Favorite">add to favorite</a>
+            </div>
+            <div class="weather-data">
+                <span class="location-name"></span>
+                <span class="temp"></span>
+                <span class="state"></span>
+                <span class="humidity"></span>
+                <span class="wind"></span>
+            </div>
+        </div>
+        <link rel="stylesheet" href="weatherComponent.css">
+    </template>
+
     <script src="main.min.js" type="application/javascript"></script>
-</head>
-<body>
-<p>Simple html file.</p>
-</body>
+
 </html>
