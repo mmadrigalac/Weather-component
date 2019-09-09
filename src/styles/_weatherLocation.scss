@@ -22,10 +22,14 @@
 
     .location-results {
       display: flex;
-      flex-flow: column nowrap;
+      flex-flow: column wrap;
+      width: 90%;
+      height: 100%;
+      overflow: auto;
 
       .location-result{
         text-decoration: none;
+        margin-left: 10px;
       }
     }
 

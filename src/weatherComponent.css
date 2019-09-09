@@ -74,10 +74,14 @@
 }
 .location-container .location-results {
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: column wrap;
+  width: 90%;
+  height: 100%;
+  overflow: auto;
 }
 .location-container .location-results .location-result {
   text-decoration: none;
+  margin-left: 10px;
 }
 .location-container .close {
   color: #aaa;

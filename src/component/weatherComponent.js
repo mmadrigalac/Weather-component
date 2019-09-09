@@ -102,14 +102,15 @@ class WeatherComponent extends HTMLElement {
 
 		// Display the location area for selection
 		this.shadowRoot.querySelector('.close').addEventListener('click', e=>{
-			cleanLocationSelector(this);
+			this.cleanLocationSelector(this);
 		});
 
 		// Find search suggestions
 		this.shadowRoot.querySelector('#searchButton').addEventListener('click', e=>{
 			let searchCriteria = this.shadowRoot.querySelector('#searchCriteria').value;
 
-			this.generateLocationList(searchCriteria);
+			if(searchCriteria)
+				this.generateLocationList(searchCriteria);
 			
 		});
 	}

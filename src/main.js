@@ -295,13 +295,13 @@ function (_HTMLElement) {
       }); // Display the location area for selection
 
       this.shadowRoot.querySelector('.close').addEventListener('click', function (e) {
-        cleanLocationSelector(_this3);
+        _this3.cleanLocationSelector(_this3);
       }); // Find search suggestions
 
       this.shadowRoot.querySelector('#searchButton').addEventListener('click', function (e) {
         var searchCriteria = _this3.shadowRoot.querySelector('#searchCriteria').value;
 
-        _this3.generateLocationList(searchCriteria);
+        if (searchCriteria) _this3.generateLocationList(searchCriteria);
       });
     }
     /**
