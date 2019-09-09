@@ -1,9 +1,162 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+var indexOf = function (xs, item) {
+    if (xs.indexOf) return xs.indexOf(item);
+    else for (var i = 0; i < xs.length; i++) {
+        if (xs[i] === item) return i;
+    }
+    return -1;
+};
+var Object_keys = function (obj) {
+    if (Object.keys) return Object.keys(obj)
+    else {
+        var res = [];
+        for (var key in obj) res.push(key)
+        return res;
+    }
+};
+
+var forEach = function (xs, fn) {
+    if (xs.forEach) return xs.forEach(fn)
+    else for (var i = 0; i < xs.length; i++) {
+        fn(xs[i], i, xs);
+    }
+};
+
+var defineProp = (function() {
+    try {
+        Object.defineProperty({}, '_', {});
+        return function(obj, name, value) {
+            Object.defineProperty(obj, name, {
+                writable: true,
+                enumerable: false,
+                configurable: true,
+                value: value
+            })
+        };
+    } catch(e) {
+        return function(obj, name, value) {
+            obj[name] = value;
+        };
+    }
+}());
+
+var globals = ['Array', 'Boolean', 'Date', 'Error', 'EvalError', 'Function',
+'Infinity', 'JSON', 'Math', 'NaN', 'Number', 'Object', 'RangeError',
+'ReferenceError', 'RegExp', 'String', 'SyntaxError', 'TypeError', 'URIError',
+'decodeURI', 'decodeURIComponent', 'encodeURI', 'encodeURIComponent', 'escape',
+'eval', 'isFinite', 'isNaN', 'parseFloat', 'parseInt', 'undefined', 'unescape'];
+
+function Context() {}
+Context.prototype = {};
+
+var Script = exports.Script = function NodeScript (code) {
+    if (!(this instanceof Script)) return new Script(code);
+    this.code = code;
+};
+
+Script.prototype.runInContext = function (context) {
+    if (!(context instanceof Context)) {
+        throw new TypeError("needs a 'context' argument.");
+    }
+    
+    var iframe = document.createElement('iframe');
+    if (!iframe.style) iframe.style = {};
+    iframe.style.display = 'none';
+    
+    document.body.appendChild(iframe);
+    
+    var win = iframe.contentWindow;
+    var wEval = win.eval, wExecScript = win.execScript;
+
+    if (!wEval && wExecScript) {
+        // win.eval() magically appears when this is called in IE:
+        wExecScript.call(win, 'null');
+        wEval = win.eval;
+    }
+    
+    forEach(Object_keys(context), function (key) {
+        win[key] = context[key];
+    });
+    forEach(globals, function (key) {
+        if (context[key]) {
+            win[key] = context[key];
+        }
+    });
+    
+    var winKeys = Object_keys(win);
+
+    var res = wEval.call(win, this.code);
+    
+    forEach(Object_keys(win), function (key) {
+        // Avoid copying circular objects like `top` and `window` by only
+        // updating existing context properties or new properties in the `win`
+        // that was only introduced after the eval.
+        if (key in context || indexOf(winKeys, key) === -1) {
+            context[key] = win[key];
+        }
+    });
+
+    forEach(globals, function (key) {
+        if (!(key in context)) {
+            defineProp(context, key, win[key]);
+        }
+    });
+    
+    document.body.removeChild(iframe);
+    
+    return res;
+};
+
+Script.prototype.runInThisContext = function () {
+    return eval(this.code); // maybe...
+};
+
+Script.prototype.runInNewContext = function (context) {
+    var ctx = Script.createContext(context);
+    var res = this.runInContext(ctx);
+
+    if (context) {
+        forEach(Object_keys(ctx), function (key) {
+            context[key] = ctx[key];
+        });
+    }
+
+    return res;
+};
+
+forEach(Object_keys(Script.prototype), function (name) {
+    exports[name] = Script[name] = function (code) {
+        var s = Script(code);
+        return s[name].apply(s, [].slice.call(arguments, 1));
+    };
+});
+
+exports.isContext = function (context) {
+    return context instanceof Context;
+};
+
+exports.createScript = function (code) {
+    return exports.Script(code);
+};
+
+exports.createContext = Script.createContext = function (context) {
+    var copy = new Context();
+    if(typeof context === 'object') {
+        forEach(Object_keys(context), function (key) {
+            copy[key] = context[key];
+        });
+    }
+    return copy;
+};
+
+},{}],2:[function(require,module,exports){
 "use strict";
 
 var weatherSvc = _interopRequireWildcard(require("../services/weatherService"));
 
 var _weatherDataModel = require("../models/weatherDataModel.js");
+
+var _vm = require("vm");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
@@ -70,6 +223,7 @@ function (_HTMLElement) {
       var instance = template.content.cloneNode(true);
       shadowRoot.appendChild(instance);
       this.initLocationData();
+      this.addListeners();
     }
     /**
     * Calls Weather Service to assign the location data provided by API
@@ -82,7 +236,7 @@ function (_HTMLElement) {
 
       // ToDO: implement geolocation for initilization.
       // Using att value otherwise use a fallback location.
-      var location = this.getAttribute('location') ? this.getAttribute('location') : 'san jose'; // Look for initial weather data.
+      var location = this.getAttribute('location') ? this.getAttribute('location') : 'Sapporo'; // Look for initial weather data.
 
       weatherSvc.getLocationOptions(location).then(function (data) {
         var location = data.shift();
@@ -103,10 +257,121 @@ function (_HTMLElement) {
     value: function render(weatherData) {
       var currentWeather = weatherData.currentData;
       this.shadowRoot.querySelector('.location-name').innerHTML = weatherData.title;
-      this.shadowRoot.querySelector('.temp').innerHTML = currentWeather.the_temp.toFixed();
-      this.shadowRoot.querySelector('.state').innerHTML = currentWeather.weather_state_name;
+      this.shadowRoot.querySelector('.temp').innerHTML = "".concat(currentWeather.the_temp.toFixed(), "\xB0");
       this.shadowRoot.querySelector('.humidity').innerHTML = "".concat(currentWeather.humidity, "%");
-      this.shadowRoot.querySelector('.wind').innerHTML = "".concat(currentWeather.wind_speed.toFixed(1), " mps ").concat(currentWeather.wind_direction_compass);
+      this.shadowRoot.querySelector('.wind').innerHTML = "".concat(currentWeather.wind_speed.toFixed(1), " mps");
+      this.shadowRoot.querySelector('.direction').innerHTML = "".concat(currentWeather.wind_direction_compass); //generates the state image
+
+      this.getWeatherStateImage(weatherData);
+    }
+    /**
+     * creates an image element using the correct Image route
+     * @param {Object} weatherData : Data provided by the API
+     */
+
+  }, {
+    key: "getWeatherStateImage",
+    value: function getWeatherStateImage(weatherData) {
+      var weatherState = weatherData.currentData.weather_state_abbr; // Set the state image 
+
+      var image = document.createElement('img');
+      image.src = weatherSvc.getStateImageURL(weatherState);
+      this.shadowRoot.querySelector('.weather-container').style.backgroundImage = "url(static/".concat(weatherState, ".png)");
+      this.shadowRoot.querySelector('.state').innerHTML = '';
+      this.shadowRoot.querySelector('.state').appendChild(image);
+    }
+    /**
+     * Add the required Listeners to the component
+     */
+
+  }, {
+    key: "addListeners",
+    value: function addListeners() {
+      var _this3 = this;
+
+      // Display the location area for selection
+      this.shadowRoot.querySelector('#select-location').addEventListener('click', function (e) {
+        _this3.shadowRoot.querySelector('#weather-location').style.display = 'block';
+      }); // Display the location area for selection
+
+      this.shadowRoot.querySelector('.close').addEventListener('click', function (e) {
+        cleanLocationSelector(_this3);
+      }); // Find search suggestions
+
+      this.shadowRoot.querySelector('#searchButton').addEventListener('click', function (e) {
+        var searchCriteria = _this3.shadowRoot.querySelector('#searchCriteria').value;
+
+        _this3.generateLocationList(searchCriteria);
+      });
+    }
+    /**
+     * Clean location Selector and clear search criteria
+     */
+
+  }, {
+    key: "cleanLocationSelector",
+    value: function cleanLocationSelector() {
+      this.shadowRoot.querySelector('#weather-location').style.display = 'none';
+      this.shadowRoot.querySelector('.location-results').innerHTML = "";
+      this.shadowRoot.querySelector('#searchCriteria').value = "";
+    }
+    /**
+     * 
+     * @param {string} searchCriteria: text entered in the search box
+     */
+
+  }, {
+    key: "generateLocationList",
+    value: function generateLocationList(searchCriteria) {
+      var _this4 = this;
+
+      weatherSvc.getLocationOptions(searchCriteria).then(function (data) {
+        /**
+         * Append text to a new node and include it into the parentNode
+         * @parameter {Object} parentElement:
+         * @parameter {string} text
+         */
+        function appendTextNode(parentElement, text) {
+          var textNode = document.createTextNode(text);
+          parentElement.appendChild(textNode);
+        } //Cleans the result container before show the new results
+
+
+        _this4.shadowRoot.querySelector('.location-results').innerHTML = "";
+
+        if (!data.length) {
+          var messageSpan = document.createElement('span');
+          appendTextNode(messageSpan, 'Location was not found');
+          messageSpan.classList.add('missing-location'); // message is added to result container
+
+          _this4.shadowRoot.querySelector('.location-results').appendChild(messageSpan);
+
+          return;
+        } // For each location shown a new element will be added to the list
+
+
+        data.forEach(function (location) {
+          var locationLink = document.createElement('a'),
+              locationTitle = document.createElement('span');
+          appendTextNode(locationTitle, location.title);
+          locationLink.setAttribute('href', '#');
+          locationLink.setAttribute('role', 'button');
+          locationLink.setAttribute('woeid', location.woeid);
+          locationLink.classList.add('location-result');
+          locationLink.append(locationTitle); // Calls API to update component under selection
+
+          locationLink.addEventListener('click', function (e) {
+            var woeid = e.currentTarget.attributes.woeid.nodeValue;
+            weatherSvc.getWeatherData(woeid).then(function (weatherData) {
+              _this4.render((0, _weatherDataModel.weatherDataModel)(weatherData));
+            });
+
+            _this4.cleanLocationSelector();
+          });
+
+          _this4.shadowRoot.querySelector('.location-results').appendChild(locationLink);
+        });
+      });
     }
   }]);
 
@@ -115,7 +380,7 @@ function (_HTMLElement) {
 
 customElements.define('weather-component', WeatherComponent);
 
-},{"../models/weatherDataModel.js":2,"../services/weatherService":4}],2:[function(require,module,exports){
+},{"../models/weatherDataModel.js":3,"../services/weatherService":5,"vm":1}],3:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -142,17 +407,21 @@ function weatherDataModel(data) {
   };
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getApiResponse = getApiResponse;
-var repoURL = "https://www.metaweather.com/api";
+exports.SITE_URL = void 0;
+// Keeps the current API main route
+var SITE_URL = "https://www.metaweather.com";
 /**
 * Creates a promise besed on an ajax call using the Url provided.
 */
+
+exports.SITE_URL = SITE_URL;
 
 function getApiResponse(url) {
   return new Promise(function (resolve, reject) {
@@ -162,14 +431,14 @@ function getApiResponse(url) {
       resolve(JSON.parse(xhr.responseText));
     };
 
-    var requestUrl = "".concat(repoURL, "/").concat(url);
+    var requestUrl = "".concat(SITE_URL, "/").concat(url);
     xhr.open('GET', requestUrl, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send();
   });
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -177,6 +446,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getLocationOptions = getLocationOptions;
 exports.getWeatherData = getWeatherData;
+exports.getStateImageURL = getStateImageURL;
 
 var weatherRepo = _interopRequireWildcard(require("./weatherRepo.js"));
 
@@ -199,7 +469,7 @@ function validateCoordinate(location) {
 
 function getLocationOptions(location) {
   var locationType = validateCoordinate(location) ? "lattlong=".concat(location) : "query=".concat(location);
-  var completeUrl = "location/search/?".concat(locationType); //Once completed the 
+  var completeUrl = "api/location/search/?".concat(locationType); //Once completed the 
 
   return weatherRepo.getApiResponse(completeUrl);
 }
@@ -209,8 +479,18 @@ function getLocationOptions(location) {
 
 
 function getWeatherData(woeid) {
-  var completeUrl = "location/".concat(woeid);
+  var completeUrl = "api/location/".concat(woeid);
   return weatherRepo.getApiResponse(completeUrl);
 }
+/**
+ * Generates the route of the image to be displayed in the component
+ * @param {Object} state: destructuring of weatherDataModel
+ */
 
-},{"./weatherRepo.js":3}]},{},[1,2,3,4]);
+
+function getStateImageURL(state) {
+  var IMG_URL = "".concat(weatherRepo.SITE_URL, "/static/img/weather/png/64/");
+  return "".concat(IMG_URL).concat(state, ".png");
+}
+
+},{"./weatherRepo.js":4}]},{},[2,3,4,5]);

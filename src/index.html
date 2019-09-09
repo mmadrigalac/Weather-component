@@ -1,27 +1,50 @@
 <!DOCTYPE html>
 <html>
     <head lang="en">
-        <meta charset="UTF-8">    
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">    
         <title>Weather Potcast</title>
     </head>
     <body>
-        <weather-component></weather-component>        
+        <weather-component location="Mexico"></weather-component>        
     </body>
 
     <template id="weather-component-template">
         <div class="weather-container">
             <div class="option-selectors">
-                <a href="" id="select-location">location</a>
-                <a href="" id="add-Favorite">add to favorite</a>
+                <a href="#" role="button" id="select-location"><img src="static/location.svg" alt="location"></a>
+                <a href="#" role="button" id="add-Favorite"><img src="static/fav.svg" alt="favorite"></a>
             </div>
             <div class="weather-data">
-                <span class="location-name"></span>
-                <span class="temp"></span>
-                <span class="state"></span>
-                <span class="humidity"></span>
-                <span class="wind"></span>
+                <div class="main-data">
+                    <span class="location-name"></span>
+                    <span class="temp"></span>
+                </div>
+                <div class="state"></div>
+                <div class="other-data">
+                    <img src="static/humidity.svg" alt="humidity" ><span class="humidity"></span>
+                    <img src="static/wind.svg" alt="wind"><span class="wind"></span>  
+                    <img src="static/direction.svg" alt="direction"><span class="direction"></span>
+                </div>
+            </div>
+
+            <div id="weather-location" class="location-selection">
+                    <div class="location-container">
+                        <span class="close">&times;</span>
+                        
+                        <div class="location-search">
+                            <input type="text" id="searchCriteria" placeholder="Type your location"/>
+                            <button type="button" id="searchButton">Search</button>
+                        </div>
+                        <div class="location-results">
+
+                        </div>
+                    </div>
             </div>
         </div>
+
+       
+
         <link rel="stylesheet" href="weatherComponent.css">
     </template>
 

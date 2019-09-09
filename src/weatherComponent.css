@@ -1,8 +1,13 @@
 .weather-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 10%;
+  width: auto;
+  min-width: 250px;
+  min-height: 350px;
+  border: solid 1px black;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
 }
 .weather-container .option-selectors {
   height: 10%;
@@ -13,16 +18,78 @@
 }
 .weather-container .option-selectors a {
   text-decoration: none;
+  margin-left: 10px;
+}
+.weather-container .option-selectors a img {
+  height: 1em;
 }
 .weather-container .weather-data {
+  width: 100%;
   display: flex;
-  flex-flow: row wrap;
+  align-items: center;
+  align-content: space-between;
+  flex-direction: column;
 }
-.weather-container .weather-data .location-name {
+.weather-container .weather-data span, .weather-container .weather-data div {
+  margin: 10px;
+}
+.weather-container .weather-data .main-data {
+  display: flex;
+  align-items: flex-start;
+  font-weight: bold;
+  font-size: 2em;
+}
+.weather-container .weather-data .main-data .temp {
+  font-size: 2.5em;
+}
+.weather-container .weather-data .other-data {
+  display: flex;
+  align-items: flex-start;
+}
+.weather-container .weather-data .other-data img {
+  height: 2em;
+}
+
+.location-selection {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 370px;
+  overflow: auto;
+  background-color: black;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.location-container {
+  background-color: #fefefe;
+  margin: 3% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 70%;
+  height: 70%;
+  /* The Close Button */
+}
+.location-container .location-results {
+  display: flex;
+  flex-flow: column nowrap;
+}
+.location-container .location-results .location-result {
+  text-decoration: none;
+}
+.location-container .close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
   font-weight: bold;
 }
-.weather-container .weather-data .temp {
-  font-size: 200%;
+.location-container .close:hover,
+.location-container .close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 /*# sourceMappingURL=weatherComponent.css.map */

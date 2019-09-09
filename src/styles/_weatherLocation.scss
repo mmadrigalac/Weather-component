@@ -1,0 +1,48 @@
+.location-selection {
+    display: none; 
+    position: absolute; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: $component-height + 20px;
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+  }
+  
+  
+  .location-container {
+      background-color: #fefefe;
+      margin: 3% auto; 
+      padding: 20px;
+      border: 1px solid #888;
+      width: 70%; 
+      height: 70%;
+
+    .location-results {
+      display: flex;
+      flex-flow: column nowrap;
+
+      .location-result{
+        text-decoration: none;
+      }
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+  }
+  
+  

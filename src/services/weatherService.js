@@ -1,4 +1,5 @@
 import * as weatherRepo from './weatherRepo.js';
+
 /**
 * Verifies if the loacation is a valid coordinate.
 */
@@ -17,7 +18,7 @@ function validateCoordinate( location ){
 export function getLocationOptions( location ){
 	
 	var locationType = validateCoordinate(location)? `lattlong=${location}`: `query=${location}`;
-	let completeUrl = `location/search/?${locationType}`;
+	let completeUrl = `api/location/search/?${locationType}`;
 
 	//Once completed the 
 	return weatherRepo.getApiResponse(completeUrl);
@@ -29,7 +30,17 @@ export function getLocationOptions( location ){
 */
 export function getWeatherData( woeid ){
 
-	let completeUrl = `location/${woeid}`;
+	let completeUrl = `api/location/${woeid}`;
 
 	return weatherRepo.getApiResponse(completeUrl);
+}
+
+/**
+ * Generates the route of the image to be displayed in the component
+ * @param {Object} state: destructuring of weatherDataModel
+ */
+export function getStateImageURL(state){
+	const IMG_URL = `${weatherRepo.SITE_URL}/static/img/weather/png/64/`;
+
+	return `${IMG_URL}${state}.png`;
 }

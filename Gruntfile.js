@@ -60,6 +60,11 @@ module.exports = function(grunt) {
 			scripts :{
 					files: ['<%= jshint.files %>'],
 					tasks: ['jshint','browserify','uglify']
+			},
+			
+			sass :{
+				files:['src/styles/*.scss'],
+				tasks:['sass']
 			}
 		},
 
@@ -81,7 +86,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('test', ['jshint']);
 	grunt.registerTask('default', ['jshint','browserify','uglify:dev','sass:dev']);
-	grunt.registerTask('check', ['watch:scripts']);
+	grunt.registerTask('check', ['watch']);
 	grunt.registerTask('dev', ['open:build','serve']);
 	grunt.registerTask('css',['sass']);
 

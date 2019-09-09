@@ -1,4 +1,5 @@
-const repoURL = "https://www.metaweather.com/api";
+// Keeps the current API main route
+export const SITE_URL = "https://www.metaweather.com";
 
 /**
 * Creates a promise besed on an ajax call using the Url provided.
@@ -12,7 +13,7 @@ export function getApiResponse(url){
 			resolve( JSON.parse(xhr.responseText));
 		};
 
-		let requestUrl = `${repoURL}/${url}`;
+		let requestUrl = `${SITE_URL}/${url}`;
 
 		xhr.open('GET', requestUrl, true);
 		xhr.setRequestHeader('Content-Type', 'application/json');
